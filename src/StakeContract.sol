@@ -6,6 +6,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 error TransferFailed();
 
 contract StakeContract {
+    struct Account {
+        address user;
+        address token;
+        address balance;
+    }
     mapping(address => mapping(address => uint256)) public s_balance;
 
     function stake(uint256 amount, address token) external returns (bool) {
