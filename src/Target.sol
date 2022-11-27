@@ -12,20 +12,20 @@ contract Target {
     ICurve private constant pool = ICurve(STETH_POOL);
     IERC20 private constant token = IERC20(LP);
 
-    mapping(address => uint256) public balanceOf;
+    mapping(address => uint) public balanceOf;
 
-    function stake(uint256 amount) external {
+    function stake(uint amount) external {
         token.transferFrom(msg.sender, address(this), amount);
         balanceOf[msg.sender] += amount;
     }
 
-    function unstake(uint256 amount) external {
+    function unstake(uint amount) external {
         balanceOf[msg.sender] -= amount;
         token.transfer(msg.sender, amount);
     }
 
-    function getReward() external returns (uint256) {
-        uint256 reward = ((balanceOf[msg.sender] * pool.get_virtual_price()) /
+    function getReward() external returns (uint) {
+        uint reward = ((balanceOf[msg.sender] * pool.get_virtual_price()) /
             1e18);
         return reward;
     }
